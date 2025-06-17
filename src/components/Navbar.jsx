@@ -1,45 +1,47 @@
-import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react'; // Optional: Use `react-icons` if preferred
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react'; // lucide-react icons
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const links = ["Home", "About", "Gallery", "Services", "Testimonials", "Contact"];
 
   return (
     <nav className="fixed top-0 w-full bg-white shadow z-50">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-amber-600">Mashua The Chef</h1>
+        {/* Logo and Menu Button */}
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-amber-600">Mashua The Chef</h1>
+          {/* Hamburger Icon (shown on small screens) */}
+          <button
+            className="md:hidden ml-2"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle Menu"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
 
-        {/* Desktop Links */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-6">
-          {links.map((item) => (
+          {["Home", "About", "Gallery", "Services", "Testimonials", "Contact"].map((item) => (
             <a
-              href={`#${item.toLowerCase()}`}
-              className="text-gray-700 hover:text-amber-600 transition"
               key={item}
+              href={`#${item.toLowerCase()}`}
+              className="text-gray-700 hover:text-amber-600"
             >
               {item}
             </a>
           ))}
         </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-gray-700 focus:outline-none"
-        >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown Navigation */}
       {isOpen && (
         <div className="md:hidden bg-white px-4 pb-4 space-y-2">
-          {links.map((item) => (
+          {["Home", "About", "Gallery", "Services", "Testimonials", "Contact"].map((item) => (
             <a
-              href={`#${item.toLowerCase()}`}
-              className="block text-gray-700 hover:text-amber-600 transition"
               key={item}
+              href={`#${item.toLowerCase()}`}
+              className="block text-gray-700 hover:text-amber-600"
               onClick={() => setIsOpen(false)}
             >
               {item}

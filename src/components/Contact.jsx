@@ -10,7 +10,7 @@ import {
 const Contact = () => (
   <section id="contact" className="py-20 bg-white text-gray-900">
     <div className="max-w-3xl mx-auto px-4 text-center">
-      <h2 className="text-4xl font-bold mb-10">Book Chef Mashua</h2>
+      <h2 className="text-4xl font-bold mb-10">Get In Touch with Chef Mashua</h2>
 
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 justify-items-center">
         <a

@@ -22,7 +22,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden p-1 ml-2"
           onClick={() => setIsOpen(!isOpen)}

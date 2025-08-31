@@ -1,6 +1,4 @@
-// ---------------------------------------------------------------------------
-// Import only the icons we need from lucide‑react.
-// Keeping the import list explicit lets tree‑shaking remove unused icons.
+// Contact.jsx page
 import {
   Phone,
   Instagram,

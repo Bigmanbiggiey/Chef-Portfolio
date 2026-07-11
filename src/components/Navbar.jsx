@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Menu } from "lucide-react"; // or your icon library
 
+const NAV_ITEMS = ["Home", "About", "Gallery", "Services", "Testimonials", "Availability", "Contact"];
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -11,7 +13,7 @@ const Navbar = () => {
 
         {/* Desktop links */}
         <div className="hidden md:flex space-x-6">
-          {["Home", "About", "Gallery", "Services", "Testimonials", "Contact"].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <a
               href={`#${item.toLowerCase()}`}
               className="text-gray-700 hover:text-amber-600"
@@ -35,11 +37,12 @@ const Navbar = () => {
       {/* Mobile menu dropdown */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2 bg-white shadow">
-          {["Home", "About", "Gallery", "Services", "Testimonials", "Contact"].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <a
               href={`#${item.toLowerCase()}`}
               className="block text-gray-700 hover:text-amber-600"
               key={item}
+              onClick={() => setIsOpen(false)}
             >
               {item}
             </a>

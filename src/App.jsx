@@ -5,6 +5,7 @@ import About from './components/About';
 import Service from './components/Services';
 import Gallery from './components/Gallery';
 import Testimonials from './components/Testimonials';
+import Calendar from './components/Calendar';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import './App.css'
@@ -20,6 +21,7 @@ function App() {
       <section><Service /></section>
       <section><Gallery /></section>
       <section><Testimonials /></section>
+      <section><Calendar /></section>
       <section><Contact /></section>
       <section><Footer /></section>
     </>

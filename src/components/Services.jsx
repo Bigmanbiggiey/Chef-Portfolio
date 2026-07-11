@@ -1,3 +1,7 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '../supabase';
+import { publicUrlFor } from '../lib/media';
+
 // --- image imports -----------------------------------------------------------
 // Import each service photo from the local assets folder.
 // Keeping these in separate variables makes the services[] array below cleaner.
@@ -10,9 +14,8 @@ import menuImg         from '../assets/menu-prod.jpg';
 import eventsImg       from '../assets/Event-prod.jpg';
 
 // --- static data for the cards ---------------------------------------------
-// Array of service objects. Splitting the data layer from the UI means you
-// can later fetch this from an API or a CMS without refactoring the JSX.
-const services = [
+// Fallback shown until (or unless) the admin-managed services load from Supabase.
+const fallbackServices = [
   {
     title: 'Meal Prep / Chama Events',
     img: mealPrepImg,
@@ -53,7 +56,22 @@ const services = [
 // --- Services component -----------------------------------------------------
 // Renders a responsive grid of service cards.
 // Tailwind utility classes handle spacing, layout, and colours.
-const Services = () => (
+const Services = () => {
+  const [services, setServices] = useState(fallbackServices);
+
+  useEffect(() => {
+    supabase
+      .from('services')
+      .select('*')
+      .order('sort_order')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setServices(data.map((row) => ({ title: row.title, desc: row.description, img: publicUrlFor(row.image_path) })));
+        }
+      });
+  }, []);
+
+  return (
   <section
     id="services"                       /* anchor link for navbar scrolling */
     className="py-20 bg-gray-50 text-gray-800"
@@ -98,6 +116,7 @@ const Services = () => (
       </p>
     </div>
   </section>
-);
+  );
+};
 
 export default Services;

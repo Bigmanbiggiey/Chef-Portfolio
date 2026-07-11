@@ -1,19 +1,32 @@
 import { useState, useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { supabase } from '../supabase';
+import { publicUrlFor } from '../lib/media';
 
 import dish2 from '../assets/dish2.jpg';
 import dish3 from '../assets/dish3.jpg';
 import dish4 from '../assets/dish4.jpg';
 import dish5 from '../assets/dish5.jpg';
 
-const dishes = [dish2, dish3, dish4, dish5];
+const fallbackDishes = [dish2, dish3, dish4, dish5];
 
 const Gallery = () => {
+  const [dishes, setDishes] = useState(fallbackDishes);
   const [lightboxImage, setLightboxImage] = useState(null);
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
+
+    supabase
+      .from('gallery_photos')
+      .select('*')
+      .order('sort_order')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setDishes(data.map((row) => publicUrlFor(row.image_path)));
+        }
+      });
   }, []);
 
   return (

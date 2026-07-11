@@ -23,18 +23,18 @@ const AdminDashboard = ({ email, onSignOut }) => {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-amber-600">Chef Mashua Admin</h1>
-          <div className="flex items-center gap-4">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-y-2 gap-x-4">
+          <h1 className="text-lg sm:text-xl font-bold text-amber-600">Chef Mashua Admin</h1>
+          <div className="flex items-center gap-3 sm:gap-4">
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-600"
             >
-              View Site <ExternalLink className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">View Site</span> <ExternalLink className="w-3.5 h-3.5" />
             </a>
-            <span className="text-sm text-gray-400 hidden sm:inline">{email}</span>
+            <span className="text-sm text-gray-400 hidden md:inline">{email}</span>
             <button
               onClick={onSignOut}
               className="text-sm text-gray-500 hover:text-amber-600"

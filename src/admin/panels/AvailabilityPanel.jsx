@@ -122,8 +122,8 @@ const AvailabilityPanel = () => {
         <>
         <div className="space-y-2 max-w-lg">
           {schedule.map((row) => (
-            <div key={row.day_of_week} className="flex items-center gap-3">
-              <label className="w-28 flex items-center gap-2 text-sm text-gray-700">
+            <div key={row.day_of_week} className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <label className="w-28 shrink-0 flex items-center gap-2 text-sm text-gray-700">
                 <input
                   type="checkbox"
                   checked={row.is_available}
@@ -131,21 +131,23 @@ const AvailabilityPanel = () => {
                 />
                 {DAY_NAMES[row.day_of_week]}
               </label>
-              <input
-                type="time"
-                value={row.start_time}
-                disabled={!row.is_available}
-                onChange={(e) => updateDay(row.day_of_week, { start_time: e.target.value })}
-                className={`${inputClass} disabled:opacity-50`}
-              />
-              <span className="text-gray-400">to</span>
-              <input
-                type="time"
-                value={row.end_time}
-                disabled={!row.is_available}
-                onChange={(e) => updateDay(row.day_of_week, { end_time: e.target.value })}
-                className={`${inputClass} disabled:opacity-50`}
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="time"
+                  value={row.start_time}
+                  disabled={!row.is_available}
+                  onChange={(e) => updateDay(row.day_of_week, { start_time: e.target.value })}
+                  className={`${inputClass} disabled:opacity-50`}
+                />
+                <span className="text-gray-400">to</span>
+                <input
+                  type="time"
+                  value={row.end_time}
+                  disabled={!row.is_available}
+                  onChange={(e) => updateDay(row.day_of_week, { end_time: e.target.value })}
+                  className={`${inputClass} disabled:opacity-50`}
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -212,7 +214,7 @@ const AvailabilityPanel = () => {
         ) : (
           <div className="space-y-2">
             {periods.map((p) => (
-              <div key={p.id} className="bg-white rounded-lg shadow p-3 flex justify-between items-center">
+              <div key={p.id} className="bg-white rounded-lg shadow p-3 flex flex-wrap justify-between items-center gap-2">
                 <span className="text-sm text-gray-700">
                   {p.start_date} – {p.end_date}{p.note ? ` · ${p.note}` : ''}
                 </span>

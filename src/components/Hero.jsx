@@ -32,14 +32,14 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="relative h-screen bg-cover bg-center text-white"
+      className="relative min-h-screen bg-cover bg-center text-white"
       style={{ backgroundImage: `url(${content.image})` }}
     >
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60 z-0" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-24 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -40 }}
           animate={{ opacity: 1, y: 0 }}

@@ -155,11 +155,15 @@ const ServicesPanel = () => {
       ) : (
         <div className="space-y-4">
           {services.map((row, index) => (
-            <div key={row.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
+            <div key={row.id} className="bg-white rounded-lg shadow p-4 flex flex-col sm:flex-row gap-4">
               {row.image_path && (
-                <img src={publicUrlFor(row.image_path)} alt={row.title} className="w-24 h-24 object-cover rounded" />
+                <img
+                  src={publicUrlFor(row.image_path)}
+                  alt={row.title}
+                  className="w-full h-40 sm:w-24 sm:h-24 object-cover rounded"
+                />
               )}
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 min-w-0 space-y-2">
                 <input
                   type="text"
                   value={row.title}
@@ -174,12 +178,12 @@ const ServicesPanel = () => {
                   rows={2}
                   className={inputClass}
                 />
-                <div className="flex gap-2 items-center flex-wrap">
+                <div className="flex gap-3 items-center flex-wrap">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => e.target.files[0] && handleReplaceImage(row, e.target.files[0])}
-                    className="text-xs"
+                    className="text-xs max-w-full"
                   />
                   <button
                     onClick={() => handleSaveRow(row)}
@@ -190,14 +194,14 @@ const ServicesPanel = () => {
                   <button onClick={() => handleDelete(row)} className={dangerLinkClass}>
                     Delete
                   </button>
+                  <ReorderButtons
+                    onUp={() => handleMove(index, -1)}
+                    onDown={() => handleMove(index, 1)}
+                    disableUp={index === 0}
+                    disableDown={index === services.length - 1}
+                  />
                 </div>
               </div>
-              <ReorderButtons
-                onUp={() => handleMove(index, -1)}
-                onDown={() => handleMove(index, 1)}
-                disableUp={index === 0}
-                disableDown={index === services.length - 1}
-              />
             </div>
           ))}
         </div>

@@ -8,7 +8,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 w-full bg-white shadow z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto px-0 md:px-4 py-3 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-amber-600">Mashua The Chef</h1>
 
         {/* Desktop links */}
@@ -36,7 +36,7 @@ const Navbar = () => {
 
       {/* Mobile menu dropdown */}
       {isOpen && (
-        <div className="md:hidden px-4 pb-4 space-y-2 bg-white shadow">
+        <div className="md:hidden px-0 pb-4 space-y-2 bg-white shadow">
           {NAV_ITEMS.map((item) => (
             <a
               href={`#${item.toLowerCase()}`}

@@ -160,3 +160,39 @@ create policy "Admin write" on unavailability_periods for all
 -- (e.g. "Booked", "Vacation") rather than sensitive guest/client details,
 -- since anyone with the anon key can query this table directly, not just
 -- visitors who click through the calendar UI.
+
+-- ============================================================
+-- Inquiries: a persistent record of contact form + availability
+-- booking-request submissions, logged server-side alongside the
+-- existing email notification.
+--
+-- Unlike every other table above, there is deliberately NO insert
+-- policy here. Rows are only ever written by the Netlify Function
+-- (netlify/functions/contact.js) using the Supabase service_role key,
+-- which bypasses RLS entirely — the anon key used by the browser has
+-- no way to write to this table at all. This keeps inquiry logging
+-- off the public write surface, since (unlike testimonials) there's
+-- no legitimate reason for a visitor's browser to insert here directly.
+-- ============================================================
+
+create table inquiries (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  message text not null,
+  source text not null default 'contact',
+  handled boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table inquiries enable row level security;
+
+create policy "Admin read" on inquiries for select
+  using (auth.jwt() ->> 'email' in ('ndiranguh02@gmail.com', 'meshackmashua@gmail.com'));
+
+create policy "Admin update" on inquiries for update
+  using (auth.jwt() ->> 'email' in ('ndiranguh02@gmail.com', 'meshackmashua@gmail.com'))
+  with check (auth.jwt() ->> 'email' in ('ndiranguh02@gmail.com', 'meshackmashua@gmail.com'));
+
+create policy "Admin delete" on inquiries for delete
+  using (auth.jwt() ->> 'email' in ('ndiranguh02@gmail.com', 'meshackmashua@gmail.com'));

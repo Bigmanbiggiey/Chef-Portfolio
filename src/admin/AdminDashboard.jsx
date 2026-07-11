@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Image, UtensilsCrossed, Home, MessageSquare, CalendarDays, ExternalLink } from 'lucide-react';
+import { Image, UtensilsCrossed, Home, MessageSquare, CalendarDays, Inbox, ExternalLink } from 'lucide-react';
 import GalleryPanel from './panels/GalleryPanel';
 import ServicesPanel from './panels/ServicesPanel';
 import SiteSettingsPanel from './panels/SiteSettingsPanel';
 import TestimonialsPanel from './panels/TestimonialsPanel';
 import AvailabilityPanel from './panels/AvailabilityPanel';
+import InquiriesPanel from './panels/InquiriesPanel';
 
 const TABS = [
+  { key: 'inquiries', label: 'Inquiries', Icon: Inbox, Panel: InquiriesPanel },
   { key: 'gallery', label: 'Gallery', Icon: Image, Panel: GalleryPanel },
   { key: 'services', label: 'Services', Icon: UtensilsCrossed, Panel: ServicesPanel },
   { key: 'settings', label: 'Hero & About', Icon: Home, Panel: SiteSettingsPanel },

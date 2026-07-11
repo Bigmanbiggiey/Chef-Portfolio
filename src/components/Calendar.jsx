@@ -112,7 +112,7 @@ const Calendar = () => {
       : `Availability request for ${formatDateKey(selectedDate)}.`;
 
     try {
-      await submitContact({ name: request.name, email: request.email, message, honeypot: request.honeypot });
+      await submitContact({ name: request.name, email: request.email, message, honeypot: request.honeypot, source: 'availability' });
       setStatus('success');
     } catch (err) {
       setErrorMessage(err.message);

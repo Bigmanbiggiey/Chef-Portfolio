@@ -1,7 +1,18 @@
 import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TO_EMAIL = 'meshackmashua@gmail.com';
+
+// Server-only client using the service_role key, which bypasses RLS —
+// this is intentional (see supabase/schema.sql): the `inquiries` table has
+// no insert policy for the public anon key, so logging can only happen
+// from here. SUPABASE_SERVICE_ROLE_KEY must NEVER get a VITE_ prefix —
+// that would bundle it into client-side JS and hand out full database access.
+function getSupabaseAdmin() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -15,7 +26,8 @@ export const handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { name, email, message, honeypot } = payload;
+  const { name, email, message, honeypot, source } = payload;
+  const inquirySource = source === 'availability' ? 'availability' : 'contact';
 
   // Bots fill hidden fields; pretend success without sending anything.
   if (honeypot) {
@@ -48,6 +60,20 @@ export const handler = async (event) => {
       subject: `New website inquiry from ${name}`,
       text: `From: ${name} <${email}>\n\n${message}`,
     });
+
+    // Best-effort: the email is the critical path (already sent above), so a
+    // logging failure here shouldn't turn into an error for the visitor.
+    const supabaseAdmin = getSupabaseAdmin();
+    if (supabaseAdmin) {
+      try {
+        const { error: logError } = await supabaseAdmin
+          .from('inquiries')
+          .insert({ name, email, message, source: inquirySource });
+        if (logError) console.error('Failed to log inquiry:', logError.message);
+      } catch (logErr) {
+        console.error('Failed to log inquiry:', logErr);
+      }
+    }
 
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch {

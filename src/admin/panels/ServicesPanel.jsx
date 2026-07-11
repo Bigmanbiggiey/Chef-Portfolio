@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabase';
 import { publicUrlFor, uploadImage, deleteImage } from '../../lib/media';
-
-const inputClass = 'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500';
+import { Spinner, EmptyState, ReorderButtons } from '../ui';
+import { inputClass, dangerLinkClass, confirmDelete, reorderRow } from '../adminUtils';
 
 const emptyNew = { title: '', description: '', sort_order: 0, file: null };
 
 const ServicesPanel = () => {
   const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [newService, setNewService] = useState(emptyNew);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [status, setStatus] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -17,10 +19,23 @@ const ServicesPanel = () => {
       .from('services')
       .select('*')
       .order('sort_order')
-      .then(({ data }) => setServices(data || []));
+      .then(({ data }) => {
+        setServices(data || []);
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
+
+  useEffect(() => {
+    if (!newService.file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(newService.file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [newService.file]);
 
   const updateRow = (id, patch) => {
     setServices((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -47,9 +62,14 @@ const ServicesPanel = () => {
   };
 
   const handleDelete = async (row) => {
+    if (!confirmDelete('Delete this service? This cannot be undone.')) return;
     if (row.image_path) await deleteImage(row.image_path);
     await supabase.from('services').delete().eq('id', row.id);
     load();
+  };
+
+  const handleMove = async (index, direction) => {
+    if (await reorderRow('services', services, index, direction)) load();
   };
 
   const handleCreate = async (e) => {
@@ -115,6 +135,9 @@ const ServicesPanel = () => {
           onChange={(e) => setNewService({ ...newService, file: e.target.files[0] || null })}
           className={inputClass}
         />
+        {previewUrl && (
+          <img src={previewUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border" />
+        )}
         <button
           type="submit"
           disabled={status === 'saving'}
@@ -125,57 +148,60 @@ const ServicesPanel = () => {
         {status === 'error' && <p className="text-red-600 text-sm">{errorMessage}</p>}
       </form>
 
-      <div className="space-y-4">
-        {services.map((row) => (
-          <div key={row.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
-            {row.image_path && (
-              <img src={publicUrlFor(row.image_path)} alt={row.title} className="w-24 h-24 object-cover rounded" />
-            )}
-            <div className="flex-1 space-y-2">
-              <input
-                type="text"
-                value={row.title}
-                onChange={(e) => updateRow(row.id, { title: e.target.value })}
-                maxLength={120}
-                className={inputClass}
-              />
-              <textarea
-                value={row.description}
-                onChange={(e) => updateRow(row.id, { description: e.target.value })}
-                maxLength={500}
-                rows={2}
-                className={inputClass}
-              />
-              <div className="flex gap-2 items-center flex-wrap">
+      {loading ? (
+        <Spinner label="Loading services…" />
+      ) : services.length === 0 ? (
+        <EmptyState>No services yet — add your first one above.</EmptyState>
+      ) : (
+        <div className="space-y-4">
+          {services.map((row, index) => (
+            <div key={row.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
+              {row.image_path && (
+                <img src={publicUrlFor(row.image_path)} alt={row.title} className="w-24 h-24 object-cover rounded" />
+              )}
+              <div className="flex-1 space-y-2">
                 <input
-                  type="number"
-                  value={row.sort_order}
-                  onChange={(e) => updateRow(row.id, { sort_order: e.target.value })}
-                  className="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  type="text"
+                  value={row.title}
+                  onChange={(e) => updateRow(row.id, { title: e.target.value })}
+                  maxLength={120}
+                  className={inputClass}
                 />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files[0] && handleReplaceImage(row, e.target.files[0])}
-                  className="text-xs"
+                <textarea
+                  value={row.description}
+                  onChange={(e) => updateRow(row.id, { description: e.target.value })}
+                  maxLength={500}
+                  rows={2}
+                  className={inputClass}
                 />
-                <button
-                  onClick={() => handleSaveRow(row)}
-                  className="px-4 py-1 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-full"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => handleDelete(row)}
-                  className="text-red-600 hover:text-red-700 text-sm"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-2 items-center flex-wrap">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files[0] && handleReplaceImage(row, e.target.files[0])}
+                    className="text-xs"
+                  />
+                  <button
+                    onClick={() => handleSaveRow(row)}
+                    className="px-4 py-1 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-full"
+                  >
+                    Save
+                  </button>
+                  <button onClick={() => handleDelete(row)} className={dangerLinkClass}>
+                    Delete
+                  </button>
+                </div>
               </div>
+              <ReorderButtons
+                onUp={() => handleMove(index, -1)}
+                onDown={() => handleMove(index, 1)}
+                disableUp={index === 0}
+                disableDown={index === services.length - 1}
+              />
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

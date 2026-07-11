@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabase';
+import { Spinner, EmptyState } from '../ui';
+import { dangerLinkClass, confirmDelete } from '../adminUtils';
 
+// Compact variant of the shared inputClass — these sit inline (time/date
+// pairs next to "to" labels), so the shared w-full style doesn't fit.
 const inputClass = 'rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500';
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -10,18 +14,23 @@ const AvailabilityPanel = () => {
   const [schedule, setSchedule] = useState([]);
   const [scheduleStatus, setScheduleStatus] = useState('idle');
   const [scheduleError, setScheduleError] = useState('');
+  const [scheduleLoading, setScheduleLoading] = useState(true);
 
   const [periods, setPeriods] = useState([]);
   const [newPeriod, setNewPeriod] = useState(emptyPeriod);
   const [periodStatus, setPeriodStatus] = useState('idle');
   const [periodError, setPeriodError] = useState('');
+  const [periodsLoading, setPeriodsLoading] = useState(true);
 
   const loadSchedule = () => {
     supabase
       .from('availability_schedule')
       .select('*')
       .order('day_of_week')
-      .then(({ data }) => setSchedule(data || []));
+      .then(({ data }) => {
+        setSchedule(data || []);
+        setScheduleLoading(false);
+      });
   };
 
   const loadPeriods = () => {
@@ -29,7 +38,10 @@ const AvailabilityPanel = () => {
       .from('unavailability_periods')
       .select('*')
       .order('start_date')
-      .then(({ data }) => setPeriods(data || []));
+      .then(({ data }) => {
+        setPeriods(data || []);
+        setPeriodsLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -95,6 +107,7 @@ const AvailabilityPanel = () => {
   };
 
   const handleDeletePeriod = async (id) => {
+    if (!confirmDelete('Delete this unavailability period? This cannot be undone.')) return;
     await supabase.from('unavailability_periods').delete().eq('id', id);
     loadPeriods();
   };
@@ -103,6 +116,10 @@ const AvailabilityPanel = () => {
     <div className="space-y-10">
       <div>
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Weekly Schedule</h2>
+        {scheduleLoading ? (
+          <Spinner label="Loading schedule…" />
+        ) : (
+        <>
         <div className="space-y-2 max-w-lg">
           {schedule.map((row) => (
             <div key={row.day_of_week} className="flex items-center gap-3">
@@ -141,6 +158,8 @@ const AvailabilityPanel = () => {
         </button>
         {scheduleStatus === 'success' && <p className="text-green-600 text-sm mt-2">Saved.</p>}
         {scheduleStatus === 'error' && <p className="text-red-600 text-sm mt-2">{scheduleError}</p>}
+        </>
+        )}
       </div>
 
       <div>
@@ -186,21 +205,24 @@ const AvailabilityPanel = () => {
         </form>
         {periodStatus === 'error' && <p className="text-red-600 text-sm mb-2">{periodError}</p>}
 
-        <div className="space-y-2">
-          {periods.map((p) => (
-            <div key={p.id} className="bg-white rounded-lg shadow p-3 flex justify-between items-center">
-              <span className="text-sm text-gray-700">
-                {p.start_date} – {p.end_date}{p.note ? ` · ${p.note}` : ''}
-              </span>
-              <button
-                onClick={() => handleDeletePeriod(p.id)}
-                className="text-red-600 hover:text-red-700 text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
-        </div>
+        {periodsLoading ? (
+          <Spinner label="Loading periods…" />
+        ) : periods.length === 0 ? (
+          <EmptyState>No unavailability periods set — you're open per the weekly schedule above.</EmptyState>
+        ) : (
+          <div className="space-y-2">
+            {periods.map((p) => (
+              <div key={p.id} className="bg-white rounded-lg shadow p-3 flex justify-between items-center">
+                <span className="text-sm text-gray-700">
+                  {p.start_date} – {p.end_date}{p.note ? ` · ${p.note}` : ''}
+                </span>
+                <button onClick={() => handleDeletePeriod(p.id)} className={dangerLinkClass}>
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

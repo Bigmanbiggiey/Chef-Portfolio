@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { ADMIN_EMAILS } from './allowedAdminEmails';
+import { Spinner } from './ui';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
 
@@ -25,7 +26,11 @@ const AdminApp = () => {
   };
 
   if (session === undefined) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-100" />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Spinner label="Loading…" />
+      </div>
+    );
   }
 
   if (!session) {
@@ -50,7 +55,7 @@ const AdminApp = () => {
     );
   }
 
-  return <AdminDashboard onSignOut={handleSignOut} />;
+  return <AdminDashboard email={email} onSignOut={handleSignOut} />;
 };
 
 export default AdminApp;

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabase';
 import { publicUrlFor, uploadImage } from '../../lib/media';
-
-const inputClass = 'w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500';
+import { Spinner } from '../ui';
+import { inputClass } from '../adminUtils';
 
 const SiteSettingsPanel = () => {
   const [settings, setSettings] = useState(null);
   const [heroFile, setHeroFile] = useState(null);
+  const [heroPreview, setHeroPreview] = useState(null);
   const [aboutFile, setAboutFile] = useState(null);
+  const [aboutPreview, setAboutPreview] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | saving | success | error
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -20,7 +22,27 @@ const SiteSettingsPanel = () => {
       .then(({ data }) => setSettings(data));
   }, []);
 
-  if (!settings) return <p className="text-gray-500">Loading…</p>;
+  useEffect(() => {
+    if (!heroFile) {
+      setHeroPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(heroFile);
+    setHeroPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [heroFile]);
+
+  useEffect(() => {
+    if (!aboutFile) {
+      setAboutPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(aboutFile);
+    setAboutPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [aboutFile]);
+
+  if (!settings) return <Spinner label="Loading settings…" />;
 
   const handleChange = (field, value) => {
     setSettings({ ...settings, [field]: value });
@@ -63,8 +85,12 @@ const SiteSettingsPanel = () => {
       <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
         <fieldset className="space-y-3">
           <legend className="font-medium text-gray-700 mb-1">Hero</legend>
-          {settings.hero_image_path && (
-            <img src={publicUrlFor(settings.hero_image_path)} alt="Hero" className="w-full h-40 object-cover rounded" />
+          {(heroPreview || settings.hero_image_path) && (
+            <img
+              src={heroPreview || publicUrlFor(settings.hero_image_path)}
+              alt="Hero"
+              className="w-full h-40 object-cover rounded"
+            />
           )}
           <input type="file" accept="image/*" onChange={(e) => setHeroFile(e.target.files[0] || null)} className={inputClass} />
           <input
@@ -87,8 +113,12 @@ const SiteSettingsPanel = () => {
 
         <fieldset className="space-y-3">
           <legend className="font-medium text-gray-700 mb-1">About</legend>
-          {settings.about_image_path && (
-            <img src={publicUrlFor(settings.about_image_path)} alt="About" className="w-32 h-32 object-cover rounded-full" />
+          {(aboutPreview || settings.about_image_path) && (
+            <img
+              src={aboutPreview || publicUrlFor(settings.about_image_path)}
+              alt="About"
+              className="w-32 h-32 object-cover rounded-full"
+            />
           )}
           <input type="file" accept="image/*" onChange={(e) => setAboutFile(e.target.files[0] || null)} className={inputClass} />
           <input

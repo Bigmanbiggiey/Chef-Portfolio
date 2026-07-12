@@ -8,11 +8,11 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 w-full bg-white shadow z-50">
-      <div className="px-4 py-3 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-amber-600">Mashua The Chef</h1>
+      <div className="max-w-full px-4 py-3 flex flex-wrap justify-between items-center gap-y-2">
+        <h1 className="text-2xl font-bold text-amber-600 shrink-0">Mashua The Chef</h1>
 
         {/* Desktop links */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex flex-wrap justify-end items-center gap-x-6 gap-y-1 min-w-0">
           {NAV_ITEMS.map((item) => (
             <a
               href={`#${item.toLowerCase()}`}
@@ -26,7 +26,7 @@ const Navbar = () => {
 
         {/* Mobile Hamburger Icon */}
         <button
-          className="md:hidden p-1 ml-2"
+          className="md:hidden p-1 ml-2 shrink-0"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle Menu"
         >

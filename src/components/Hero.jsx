@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '../supabase';
 import { publicUrlFor } from '../lib/media';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import HeroImage from '../assets/cover.jpg';
 
 const fallback = {
@@ -12,22 +12,16 @@ const fallback = {
 
 const Hero = () => {
   const [content, setContent] = useState(fallback);
+  const data = useSiteSettings();
 
   useEffect(() => {
-    supabase
-      .from('site_settings')
-      .select('*')
-      .eq('id', 1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) return;
-        setContent((c) => ({
-          image: data.hero_image_path ? publicUrlFor(data.hero_image_path) : c.image,
-          heading: data.hero_heading || c.heading,
-          subheading: data.hero_subheading || c.subheading,
-        }));
-      });
-  }, []);
+    if (!data) return;
+    setContent((c) => ({
+      image: data.hero_image_path ? publicUrlFor(data.hero_image_path) : c.image,
+      heading: data.hero_heading || c.heading,
+      subheading: data.hero_subheading || c.subheading,
+    }));
+  }, [data]);
 
   return (
     <section

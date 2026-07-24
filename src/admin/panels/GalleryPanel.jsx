@@ -45,7 +45,7 @@ const GalleryPanel = () => {
     setErrorMessage('');
 
     try {
-      const path = await uploadImage('gallery', file);
+      const path = await uploadImage('gallery', file, { maxDim: 1000 });
       const { error } = await supabase
         .from('gallery_photos')
         .insert({ image_path: path, caption: caption.trim() || null, sort_order: Number(sortOrder) || 0 });

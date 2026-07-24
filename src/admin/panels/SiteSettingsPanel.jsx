@@ -62,8 +62,8 @@ const SiteSettingsPanel = () => {
         updated_at: new Date().toISOString(),
       };
 
-      if (heroFile) update.hero_image_path = await uploadImage('site', heroFile);
-      if (aboutFile) update.about_image_path = await uploadImage('site', aboutFile);
+      if (heroFile) update.hero_image_path = await uploadImage('site', heroFile, { maxDim: 1920 });
+      if (aboutFile) update.about_image_path = await uploadImage('site', aboutFile, { maxDim: 800 });
 
       const { error } = await supabase.from('site_settings').update(update).eq('id', 1);
       if (error) throw error;

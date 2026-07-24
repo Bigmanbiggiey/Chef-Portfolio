@@ -42,6 +42,8 @@ const Gallery = () => {
               src={src}
               alt={`Dish ${index + 1}`}
               onClick={() => setLightboxImage(src)}
+              loading="lazy"
+              decoding="async"
               className="rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform duration-300 object-cover w-full h-64"
               data-aos="zoom-in"
             />

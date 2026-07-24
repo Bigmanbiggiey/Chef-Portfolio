@@ -34,6 +34,8 @@ const About = () => {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
+          loading="lazy"
+          decoding="async"
           className="w-64 h-64 object-cover rounded-full shadow-lg mb-6 md:mb-0 md:mr-10"
         />
 

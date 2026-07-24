@@ -96,6 +96,8 @@ const Services = () => {
             <img
               src={s.img}
               alt={s.title}
+              loading="lazy"
+              decoding="async"
               className="h-48 w-full object-cover"
             />
 

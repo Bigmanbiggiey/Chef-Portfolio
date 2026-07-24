@@ -55,7 +55,7 @@ const ServicesPanel = () => {
   };
 
   const handleReplaceImage = async (row, file) => {
-    const path = await uploadImage('services', file);
+    const path = await uploadImage('services', file, { maxDim: 1000 });
     if (row.image_path) await deleteImage(row.image_path);
     await supabase.from('services').update({ image_path: path }).eq('id', row.id);
     load();
@@ -80,7 +80,7 @@ const ServicesPanel = () => {
     try {
       let image_path = null;
       if (newService.file) {
-        image_path = await uploadImage('services', newService.file);
+        image_path = await uploadImage('services', newService.file, { maxDim: 1000 });
       }
       const { error } = await supabase.from('services').insert({
         title: newService.title.trim(),
